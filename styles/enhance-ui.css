@@ -51,6 +51,7 @@ body.eui-enabled {
   --eui-card-bg: rgba(255, 255, 255, 0.045);
   --eui-card-solid: #20222b;
   --eui-card-hover: rgba(255, 255, 255, 0.07);
+  --eui-scroll: rgba(255, 255, 255, 0.28);
   --eui-border: rgba(255, 255, 255, 0.08);
   --eui-divider: rgba(255, 255, 255, 0.06);
 
@@ -70,6 +71,7 @@ body.eui-enabled[data-theme="light"]:not(.eui-force-dark) {
   --eui-card-solid: #ffffff;
   --eui-card-hover: rgba(0, 0, 0, 0.06);
   --eui-text-dim: rgba(0, 0, 0, 0.55);
+  --eui-scroll: rgba(0, 0, 0, 0.3);
   --eui-border: rgba(0, 0, 0, 0.12);
   --eui-divider: rgba(0, 0, 0, 0.08);
   --eui-shadow: rgba(0, 0, 0, 0.28);
@@ -260,13 +262,34 @@ body.eui-enabled .eui-drawer .sidebar-tab > .window-content {
   padding: 0 !important;
 }
 
-/* Slimmer scrollbars so the chat log doesn't feel cramped. */
+/* Scrollbars — the dnd5e theme sets the STANDARD `scrollbar-color` to a maroon
+   (rgb(93,20,43)); when that property is set Chrome ignores ::-webkit-scrollbar
+   styling, so we must override the standard property. This was the "red bar"
+   sitting in the gutter. Make it subtle + theme-aware. */
+body.eui-enabled #sidebar,
+body.eui-enabled #sidebar-content,
+body.eui-enabled .eui-drawer,
+body.eui-enabled .eui-drawer * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--eui-scroll) transparent !important;
+}
+/* WebKit fallback for browsers not honouring the standard property. */
 body.eui-enabled .eui-drawer ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
+}
+body.eui-enabled .eui-drawer ::-webkit-scrollbar-track {
+  background: transparent;
 }
 body.eui-enabled .eui-drawer ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.18);
+  background: var(--eui-scroll);
   border-radius: 8px;
+}
+
+/* Foundry gives #sidebar-content a negative left margin to tuck under the
+   native tab strip; in our fixed-rail layout that just makes a gutter. Zero it. */
+body.eui-enabled #sidebar-content {
+  margin: 0 !important;
 }
 
 /* =========================================================================

@@ -1,6 +1,17 @@
 # Changelog
 
-## [0.1.5] — 2026-06-14
+## [0.1.6] — 2026-06-14
+
+### Fixed
+
+- **The persistent red/maroon left-edge bar was the chat scrollbar.** A
+  geometry probe showed every layer inheriting `scrollbar-color: rgb(93,20,43)`
+  (dnd5e's maroon). Chrome ignores `::-webkit-scrollbar` styling whenever the
+  standard `scrollbar-color` is set, so prior webkit-only overrides never
+  applied. Now override the standard property (subtle, theme-aware) — this also
+  resolves the odd "blank space" gutter, which was the scrollbar track.
+- Zeroed `#sidebar-content`'s native negative left margin (a tuck-under hack for
+  the default tab strip) that contributed to the gutter.
 
 ### Fixed
 
