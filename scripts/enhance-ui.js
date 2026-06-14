@@ -17,6 +17,12 @@
  * All positioning + animation lives in styles/enhance-ui.css.
  */
 
+/**
+ * Force the immersive dark drawer for everyone, ignoring each user's Foundry
+ * theme. Leave false to respect each client's Light/Dark setting (recommended).
+ */
+const FORCE_DARK = false;
+
 const EUI = {
   ID: "enhance-ui",
 
@@ -157,6 +163,7 @@ const EUI = {
 
   init() {
     document.body.classList.add("eui-enabled");
+    if (FORCE_DARK) document.body.classList.add("eui-force-dark");
     this.ensureExpanded();
     this.tag();
     this.bind();

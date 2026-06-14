@@ -16,18 +16,60 @@
      <body>.eui-enabled -> module active.
    ========================================================================= */
 
+/* -------------------------------------------------------------------------
+   Layout + motion (theme-independent).
+   ------------------------------------------------------------------------- */
 :root {
   --eui-rail-w: 54px;     /* width of the fixed icon rail        */
   --eui-drawer-w: 360px;  /* width of the slide-out drawer       */
   --eui-anim: 200ms;      /* open/close transition duration      */
   --eui-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 
-  --eui-rail-bg: color-mix(in srgb, var(--color-cool-5, #1b1d29) 92%, black);
-  --eui-drawer-bg: color-mix(in srgb, var(--color-cool-5, #1b1d29) 88%, black);
-  --eui-border: color-mix(in srgb, var(--color-warm-2, #c9a14a) 35%, transparent);
-
   --eui-z-drawer: 60;
   --eui-z-rail: 70;       /* rail must sit ON TOP of the drawer  */
+}
+
+/* -------------------------------------------------------------------------
+   THEME PALETTE — theme-aware, per user.
+   Foundry flags the active scheme on <body> (class `theme-dark`/`theme-light`
+   + `data-theme`), and it's a CLIENT setting, so each user gets their own.
+   Text/scrollbar pull from Foundry's semantic tokens (which flip per theme);
+   only surfaces are defined explicitly here.
+
+   DARK is the default below; the light block overrides surfaces for
+   light-mode users.
+
+   FORCE-DARK ESCAPE HATCH: set `const FORCE_DARK = true` in
+   scripts/enhance-ui.js to keep the immersive dark drawer for everyone
+   regardless of their theme (it adds `.eui-force-dark`, which suppresses the
+   light overrides below).
+   ------------------------------------------------------------------------- */
+body.eui-enabled {
+  /* surfaces (dark default) */
+  --eui-rail-bg: #14151b;
+  --eui-drawer-bg: #181a21;
+  --eui-card-bg: rgba(255, 255, 255, 0.045);
+  --eui-card-hover: rgba(255, 255, 255, 0.07);
+  --eui-border: rgba(255, 255, 255, 0.08);
+  --eui-divider: rgba(255, 255, 255, 0.06);
+
+  /* text + accent (auto-adapt via Foundry tokens) */
+  --eui-text: var(--color-text-primary, #e4e4e4);
+  --eui-text-dim: var(--color-text-subtle, #9aa0ad);
+  --eui-accent: var(--color-warm-2, #c9a14a);
+  --eui-shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* Light-mode users: override surfaces only (text follows Foundry tokens). */
+body.eui-enabled.theme-light:not(.eui-force-dark),
+body.eui-enabled[data-theme="light"]:not(.eui-force-dark) {
+  --eui-rail-bg: #e9e7e1;
+  --eui-drawer-bg: #f2f0ea;
+  --eui-card-bg: rgba(0, 0, 0, 0.035);
+  --eui-card-hover: rgba(0, 0, 0, 0.06);
+  --eui-border: rgba(0, 0, 0, 0.12);
+  --eui-divider: rgba(0, 0, 0, 0.08);
+  --eui-shadow: rgba(0, 0, 0, 0.28);
 }
 
 /* -------------------------------------------------------------------------
@@ -151,7 +193,10 @@ body.eui-enabled .eui-drawer {
   /* Cast the shadow leftward only, onto the canvas — not between rail/drawer. */
   box-shadow: -10px 0 28px rgba(0, 0, 0, 0.5);
 
-  transform: translateX(calc(var(--eui-drawer-w) + var(--eui-rail-w)));
+  /* !important: AppV2 sidebar panels carry an inline transform for
+     positioning; without !important that inline value wins and the drawer
+     never slides off-screen (the "sticks when collapsed" bug). */
+  transform: translateX(calc(var(--eui-drawer-w) + var(--eui-rail-w))) !important;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -163,7 +208,7 @@ body.eui-enabled .eui-drawer {
 
 /* The active tab's drawer, while open, slides into view. */
 body.eui-enabled #sidebar.eui-open .eui-drawer.active {
-  transform: translateX(0);
+  transform: translateX(0) !important;
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
@@ -176,6 +221,14 @@ body.eui-enabled #sidebar.eui-open .eui-drawer.active {
 /* Let the chat (and other scrollable) panels fill drawer height correctly. */
 body.eui-enabled .eui-drawer > * {
   min-height: 0;
+}
+
+/* Safety net: when nothing is open, only the rail may show. Catches any stray
+   sidebar element (persistent chat controls, untagged panels) that would
+   otherwise linger over the canvas. Drawers are excluded so they keep their
+   slide-out/retract animation (they're hidden via the transform above). */
+body.eui-enabled #sidebar:not(.eui-open) > *:not(.eui-rail):not(.eui-drawer) {
+  display: none !important;
 }
 
 /* -------------------------------------------------------------------------
@@ -211,6 +264,149 @@ body.eui-enabled .eui-drawer ::-webkit-scrollbar {
 body.eui-enabled .eui-drawer ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.18);
   border-radius: 8px;
+}
+
+/* =========================================================================
+   CONTENT RESTYLE — make the drawer interior feel designed, not just
+   repositioned. Scoped to .eui-drawer, theme-aware via the palette vars.
+   Verified against the real v14 dnd5e DOM (#sidebar-content > section.tab
+   .sidebar-tab.eui-drawer, ProseMirror chat input, dice-tray, directories).
+   ========================================================================= */
+
+/* Base interior surface + text. */
+body.eui-enabled .eui-drawer {
+  color: var(--eui-text);
+  font-size: var(--font-size-14, 14px);
+}
+body.eui-enabled #sidebar-content {
+  background: none !important;
+  border: none !important;
+}
+
+/* --- Headers (directory + combat + search) ------------------------------- */
+body.eui-enabled .eui-drawer .directory-header,
+body.eui-enabled .eui-drawer .combat-tracker-header {
+  padding: 6px;
+  background: transparent;
+}
+body.eui-enabled .eui-drawer search input[type="search"],
+body.eui-enabled .eui-drawer input[type="text"],
+body.eui-enabled .eui-drawer input[type="search"] {
+  background: var(--eui-card-bg);
+  border: 1px solid var(--eui-border);
+  border-radius: 6px;
+  color: var(--eui-text);
+}
+body.eui-enabled .eui-drawer .header-actions button,
+body.eui-enabled .eui-drawer .directory-footer button {
+  background: var(--eui-card-bg);
+  border: 1px solid var(--eui-border);
+  border-radius: 6px;
+  color: var(--eui-text);
+}
+body.eui-enabled .eui-drawer .header-actions button:hover,
+body.eui-enabled .eui-drawer .directory-footer button:hover {
+  background: var(--eui-card-hover);
+}
+
+/* --- Chat messages: kill the inline user-colour border, flatten cards ---- */
+body.eui-enabled .eui-drawer .chat-log .chat-message {
+  /* override dnd5e's inline `style="border-color:#xxxxxx"` */
+  border: 1px solid var(--eui-border) !important;
+  border-left: 3px solid var(--eui-accent) !important; /* subtle accent only */
+  border-radius: 8px;
+  background: var(--eui-card-bg);
+  box-shadow: none !important;
+  margin: 0 0 6px;
+  padding: 8px 10px;
+}
+body.eui-enabled .eui-drawer .chat-message .message-sender .title {
+  color: var(--eui-text);
+  font-weight: 600;
+}
+body.eui-enabled .eui-drawer .chat-message .message-metadata,
+body.eui-enabled .eui-drawer .chat-message .message-timestamp {
+  color: var(--eui-text-dim);
+  font-size: 0.8em;
+}
+/* Round markers (combat "Round End") read as quiet dividers, not cards. */
+body.eui-enabled .eui-drawer .chat-message.round-marker {
+  border: none !important;
+  border-left: none !important;
+  background: none;
+  text-align: center;
+  opacity: 0.7;
+}
+
+/* --- Directory lists (scenes / actors / items / journal / etc.) ---------- */
+body.eui-enabled .eui-drawer .directory-item {
+  border-radius: 6px;
+}
+body.eui-enabled .eui-drawer .directory-list .entry-name,
+body.eui-enabled .eui-drawer .directory-item .entry-name {
+  color: var(--eui-text);
+}
+body.eui-enabled .eui-drawer .directory-item.entry:hover {
+  background: var(--eui-card-hover);
+}
+/* Keep user-assigned folder colours (inline bg) but soften the row. */
+body.eui-enabled .eui-drawer .folder-header {
+  border-radius: 6px;
+}
+
+/* --- Chat input area: ProseMirror editor + controls + dice tray ---------- */
+body.eui-enabled .eui-drawer .chat-form {
+  gap: 6px;
+  padding-top: 6px;
+}
+body.eui-enabled .eui-drawer prose-mirror,
+body.eui-enabled .eui-drawer .editor-content.ProseMirror {
+  background: var(--eui-card-bg);
+  border: 1px solid var(--eui-border);
+  border-radius: 8px;
+  color: var(--eui-text);
+}
+body.eui-enabled .eui-drawer #chat-controls .ui-control,
+body.eui-enabled .eui-drawer .control-buttons .ui-control {
+  color: var(--eui-text-dim);
+}
+body.eui-enabled .eui-drawer #chat-controls .ui-control:hover {
+  color: var(--eui-text);
+}
+
+/* Dice tray (BetterRolls/Dice Tray module) buttons match the surface. */
+body.eui-enabled .eui-drawer .dice-tray__button,
+body.eui-enabled .eui-drawer .dice-tray__math,
+body.eui-enabled .eui-drawer .dice-tray__ad,
+body.eui-enabled .eui-drawer .dice-tray__roll,
+body.eui-enabled .eui-drawer .dice-tray__input {
+  background: var(--eui-card-bg);
+  border: 1px solid var(--eui-border);
+  color: var(--eui-text);
+  border-radius: 6px;
+}
+body.eui-enabled .eui-drawer .dice-tray__button:hover,
+body.eui-enabled .eui-drawer .dice-tray__roll:hover {
+  background: var(--eui-card-hover);
+}
+
+/* --- Settings tab + generic buttons -------------------------------------- */
+body.eui-enabled .eui-drawer .settings button,
+body.eui-enabled .eui-drawer .access button,
+body.eui-enabled .eui-drawer .documentation .button,
+body.eui-enabled .eui-drawer .documentation button {
+  background: var(--eui-card-bg);
+  border: 1px solid var(--eui-border);
+  border-radius: 6px;
+  color: var(--eui-text);
+}
+body.eui-enabled .eui-drawer .settings button:hover,
+body.eui-enabled .eui-drawer .access button:hover {
+  background: var(--eui-card-hover);
+}
+body.eui-enabled .eui-drawer .divider {
+  color: var(--eui-text-dim);
+  border-color: var(--eui-divider);
 }
 
 /* -------------------------------------------------------------------------
