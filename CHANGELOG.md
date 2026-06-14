@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.1.4] — 2026-06-14
+
+### Fixed
+
+- **Grey stone texture survived in every theme** (so all themes looked alike).
+  Root cause confirmed via computed-style dump: dnd5e paints
+  `texture-gray1.webp` on **`.chat-message::before`**, a layered pseudo-element —
+  not the card background, which is why prior `background` overrides missed it.
+  Now reset `.chat-message::before/::after` globally, so each theme's real
+  surface shows: Flat = solid dark, Minimal = no card, Glass = frosted.
+- **Parchment now actually looks like parchment** — warm paper gradient with
+  dark ink text, instead of reverting to dnd5e's grey stone.
+- Timestamp + ⋮ controls are now legible (they were dim text sitting on the
+  leftover texture; with the texture gone the forced contrast reads).
+
+### Added
+
+- **Soft fade on the chat scroll edges** — messages now dissolve into the top
+  (and slightly the bottom) of the scroll region instead of hard-clipping
+  against the screen edge. Tunable via `--eui-fade` (default 28px).
+
 ## [0.1.3] — 2026-06-14
 
 ### Added

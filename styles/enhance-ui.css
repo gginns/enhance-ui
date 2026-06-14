@@ -315,9 +315,17 @@ body.eui-enabled .eui-drawer .directory-footer button:hover {
 body.eui-enabled .eui-drawer .chat-log .chat-message {
   margin: 0 0 6px;
   padding: 8px 10px;
-  /* kill dnd5e's parchment texture + inline user-colour border in every theme */
   background-image: none !important;
   box-shadow: none !important;
+}
+/* dnd5e paints its grey stone texture on .chat-message::before (a layered
+   pseudo-element). THIS is what kept showing through every theme — kill it. */
+body.eui-enabled .eui-drawer .chat-log .chat-message::before,
+body.eui-enabled .eui-drawer .chat-log .chat-message::after {
+  background: none !important;
+  background-image: none !important;
+  content: none !important;
+  display: none !important;
 }
 body.eui-enabled .eui-drawer .chat-message .message-sender .title {
   color: var(--eui-text);
@@ -346,13 +354,17 @@ body.eui-enabled.eui-chat-flat .eui-drawer .chat-log .chat-message {
   border-radius: 8px;
 }
 
-/* Theme: PARCHMENT — keep dnd5e's texture, but restore it and fix contrast. */
+/* Theme: PARCHMENT — an actual warm paper card (not dnd5e's grey stone). */
 body.eui-enabled.eui-chat-parchment .eui-drawer .chat-log .chat-message {
-  background-image: revert !important; /* let dnd5e paint its parchment */
-  border-radius: 8px;
+  background: linear-gradient(160deg, #f6edd6 0%, #ece0c0 100%) !important;
+  border: 1px solid #c9b487 !important;
+  border-left: 3px solid var(--eui-accent) !important;
+  border-radius: 6px;
+  color: #2a2016;
 }
+body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .message-content,
 body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .message-sender .title {
-  color: #1c1410; /* dark text reads on parchment */
+  color: #2a2016; /* dark ink reads on warm paper */
 }
 body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .message-metadata,
 body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .message-timestamp,
@@ -402,6 +414,30 @@ body.eui-enabled .eui-drawer .chat-scroll::after,
 body.eui-enabled .eui-drawer .chat-log::before,
 body.eui-enabled .eui-drawer .chat-log::after {
   display: none !important;
+}
+
+/* Soft fade at the top (and a touch at the bottom) of the chat scroll, so
+   messages dissolve into the edge as they scroll off instead of hard-clipping
+   against the top of the screen. --eui-fade controls the top fade height. */
+body.eui-enabled {
+  --eui-fade: 28px;
+}
+body.eui-enabled .eui-drawer .chat-scroll {
+  padding-top: 4px;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--eui-fade),
+    #000 calc(100% - 10px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--eui-fade),
+    #000 calc(100% - 10px),
+    transparent 100%
+  );
 }
 
 /* --- Directory lists (scenes / actors / items / journal / etc.) ---------- */
