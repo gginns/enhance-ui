@@ -100,8 +100,21 @@ body.eui-enabled #sidebar:not(.eui-open) .eui-rail [data-tab].active {
 }
 body.eui-enabled #sidebar.eui-open .eui-rail [data-tab].active {
   opacity: 1;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.10);
+  /* clean left accent bar instead of a full outline */
   box-shadow: inset 3px 0 0 var(--color-warm-2, #c9a14a);
+  outline: none !important;
+  border: none !important;
+}
+
+/* Tame Foundry's default orange active glow on rail controls. */
+body.eui-enabled .eui-rail [data-tab],
+body.eui-enabled .eui-rail [data-tab].active,
+body.eui-enabled .eui-rail [data-tab]:focus,
+body.eui-enabled .eui-rail [data-tab]:focus-visible {
+  border: none !important;
+  outline: none !important;
+  text-shadow: none !important;
 }
 
 /* The native collapse toggle is redundant now — tabs toggle the drawer. */
@@ -129,10 +142,14 @@ body.eui-enabled .eui-drawer {
 
   display: flex;
   flex-direction: column;
+  gap: 6px;
+  padding: 8px;
 
-  background: var(--eui-drawer-bg);
-  border-left: 1px solid var(--eui-border);
-  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.5);
+  /* Match the rail so the two read as one cohesive unit (no seam). */
+  background: var(--eui-rail-bg);
+  border: none !important;
+  /* Cast the shadow leftward only, onto the canvas — not between rail/drawer. */
+  box-shadow: -10px 0 28px rgba(0, 0, 0, 0.5);
 
   transform: translateX(calc(var(--eui-drawer-w) + var(--eui-rail-w)));
   opacity: 0;
@@ -159,6 +176,41 @@ body.eui-enabled #sidebar.eui-open .eui-drawer.active {
 /* Let the chat (and other scrollable) panels fill drawer height correctly. */
 body.eui-enabled .eui-drawer > * {
   min-height: 0;
+}
+
+/* -------------------------------------------------------------------------
+   Strip orphaned Foundry window furniture that now floats over the canvas:
+   resize handles, app frame borders/outlines, focus rings. These were the
+   stray red/pink ticks on the left edge.
+   ------------------------------------------------------------------------- */
+body.eui-enabled .eui-drawer .window-resize-handle,
+body.eui-enabled #sidebar .window-resize-handle {
+  display: none !important;
+}
+
+body.eui-enabled .eui-drawer,
+body.eui-enabled .eui-drawer .window-content,
+body.eui-enabled .eui-drawer .application,
+body.eui-enabled .eui-drawer.application {
+  outline: none !important;
+}
+
+/* Don't let inner panels paint their own competing frame/background. */
+body.eui-enabled .eui-drawer > .window-content,
+body.eui-enabled .eui-drawer .sidebar-tab > .window-content {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* Slimmer scrollbars so the chat log doesn't feel cramped. */
+body.eui-enabled .eui-drawer ::-webkit-scrollbar {
+  width: 8px;
+}
+body.eui-enabled .eui-drawer ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
 }
 
 /* -------------------------------------------------------------------------
