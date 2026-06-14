@@ -17,14 +17,25 @@
  * All positioning + animation lives in styles/enhance-ui.css.
  */
 
-/**
- * Force the immersive dark drawer for everyone, ignoring each user's Foundry
- * theme. Leave false to respect each client's Light/Dark setting (recommended).
- */
-const FORCE_DARK = false;
-
 const EUI = {
   ID: "enhance-ui",
+
+  /** Settings keys (registered in the `init` hook, scope: client). */
+  SETTINGS: {
+    chatTheme: "chatTheme",
+    drawerWidth: "drawerWidth",
+    railWidth: "railWidth",
+    accent: "accent",
+    forceDark: "forceDark",
+  },
+
+  /** Available chat-box themes (value -> label). */
+  CHAT_THEMES: {
+    flat: "Flat (solid, themed)",
+    parchment: "Parchment (D&D, fixed contrast)",
+    minimal: "Minimal (no cards, compact)",
+    glass: "Glass (frosted translucent)",
+  },
 
   /** Stable anchors that have held across v11–v14. */
   SIDEBAR_SEL: "#sidebar",
@@ -150,6 +161,98 @@ const EUI = {
     }
   },
 
+  /**
+   * Register module settings in Foundry's built-in Configure Settings panel.
+   * Client-scoped so each player tunes their own view. Must run in `init`.
+   */
+  registerSettings() {
+    const S = this.SETTINGS;
+    const reapply = () => this.applySettings();
+
+    game.settings.register(this.ID, S.chatTheme, {
+      name: "Chat box theme",
+      hint: "How chat message cards are styled inside the drawer.",
+      scope: "client",
+      config: true,
+      type: String,
+      choices: this.CHAT_THEMES,
+      default: "flat",
+      onChange: reapply,
+    });
+
+    game.settings.register(this.ID, S.drawerWidth, {
+      name: "Drawer width (px)",
+      hint: "Width of the slide-out drawer.",
+      scope: "client",
+      config: true,
+      type: Number,
+      range: { min: 280, max: 560, step: 10 },
+      default: 360,
+      onChange: reapply,
+    });
+
+    game.settings.register(this.ID, S.railWidth, {
+      name: "Rail width (px)",
+      hint: "Width of the fixed icon rail on the right edge.",
+      scope: "client",
+      config: true,
+      type: Number,
+      range: { min: 40, max: 80, step: 2 },
+      default: 54,
+      onChange: reapply,
+    });
+
+    game.settings.register(this.ID, S.accent, {
+      name: "Accent colour",
+      hint: "Hex colour for the active tab + message accent (e.g. #c9a14a).",
+      scope: "client",
+      config: true,
+      type: String,
+      default: "#c9a14a",
+      onChange: reapply,
+    });
+
+    game.settings.register(this.ID, S.forceDark, {
+      name: "Force dark drawer",
+      hint: "Keep the dark drawer even when your Foundry theme is Light.",
+      scope: "client",
+      config: true,
+      type: Boolean,
+      default: false,
+      onChange: reapply,
+    });
+  },
+
+  /** Push current setting values onto <body> as classes + CSS variables. */
+  applySettings() {
+    const body = document.body;
+    let theme = "flat";
+    let drawerW = 360;
+    let railW = 54;
+    let accent = "#c9a14a";
+    let forceDark = false;
+    try {
+      theme = game.settings.get(this.ID, this.SETTINGS.chatTheme);
+      drawerW = game.settings.get(this.ID, this.SETTINGS.drawerWidth);
+      railW = game.settings.get(this.ID, this.SETTINGS.railWidth);
+      accent = game.settings.get(this.ID, this.SETTINGS.accent);
+      forceDark = game.settings.get(this.ID, this.SETTINGS.forceDark);
+    } catch (e) {
+      /* settings not ready yet; fall back to defaults */
+    }
+
+    // chat theme class (one at a time)
+    Object.keys(this.CHAT_THEMES).forEach((t) =>
+      body.classList.toggle(`eui-chat-${t}`, t === theme)
+    );
+
+    body.classList.toggle("eui-force-dark", !!forceDark);
+
+    body.style.setProperty("--eui-drawer-w", `${drawerW}px`);
+    body.style.setProperty("--eui-rail-w", `${railW}px`);
+    if (accent) body.style.setProperty("--eui-accent", accent);
+  },
+
   /** Coalesce bursts of mutations (e.g. chat spam) into one tag+bind pass. */
   schedule() {
     if (this._rafQueued) return;
@@ -163,7 +266,7 @@ const EUI = {
 
   init() {
     document.body.classList.add("eui-enabled");
-    if (FORCE_DARK) document.body.classList.add("eui-force-dark");
+    this.applySettings();
     this.ensureExpanded();
     this.tag();
     this.bind();
@@ -179,6 +282,7 @@ const EUI = {
   },
 };
 
+Hooks.once("init", () => EUI.registerSettings());
 Hooks.once("ready", () => EUI.init());
 Hooks.on("renderSidebar", () => EUI.schedule());
 Hooks.on("collapseSidebar", () => EUI.ensureExpanded());

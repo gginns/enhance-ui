@@ -36,15 +36,22 @@ New-Item -ItemType SymbolicLink -Path $dst -Target $src
 
 Then enable **Enhance UI — Sidebar Drawer** in your world's module settings.
 
-## Tuning (hardcoded — no config UI by design)
+## Settings
 
-Edit the variables at the top of `styles/enhance-ui.css`:
+Configure under **Game Settings → Configure Settings → Enhance UI** (all
+client-scoped, so each player tunes their own view; changes apply live):
 
-| Variable          | Purpose                          | Default |
-|-------------------|----------------------------------|---------|
-| `--eui-rail-w`    | Width of the fixed icon rail     | `54px`  |
-| `--eui-drawer-w`  | Width of the slide-out drawer    | `360px` |
-| `--eui-anim`      | Open/close animation duration    | `200ms` |
+| Setting            | Purpose                                              | Default |
+|--------------------|------------------------------------------------------|---------|
+| Chat box theme     | Flat / Parchment / Minimal / Glass                   | Flat    |
+| Drawer width (px)  | Width of the slide-out drawer (280–560)              | 360     |
+| Rail width (px)    | Width of the fixed icon rail (40–80)                 | 54      |
+| Accent colour      | Active-tab + message accent hex                      | #c9a14a |
+| Force dark drawer  | Keep the dark drawer even in Light theme             | off     |
+
+The drawer otherwise follows each user's Foundry **Light/Dark** color scheme
+automatically. Deeper tweaks (animation timing, exact surface colours) still
+live in the palette block at the top of `styles/enhance-ui.css`.
 
 ## How it works
 

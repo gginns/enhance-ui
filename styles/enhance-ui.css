@@ -49,6 +49,7 @@ body.eui-enabled {
   --eui-rail-bg: #14151b;
   --eui-drawer-bg: #181a21;
   --eui-card-bg: rgba(255, 255, 255, 0.045);
+  --eui-card-solid: #20222b;
   --eui-card-hover: rgba(255, 255, 255, 0.07);
   --eui-border: rgba(255, 255, 255, 0.08);
   --eui-divider: rgba(255, 255, 255, 0.06);
@@ -66,6 +67,7 @@ body.eui-enabled[data-theme="light"]:not(.eui-force-dark) {
   --eui-rail-bg: #e9e7e1;
   --eui-drawer-bg: #f2f0ea;
   --eui-card-bg: rgba(0, 0, 0, 0.035);
+  --eui-card-solid: #ffffff;
   --eui-card-hover: rgba(0, 0, 0, 0.06);
   --eui-border: rgba(0, 0, 0, 0.12);
   --eui-divider: rgba(0, 0, 0, 0.08);
@@ -309,33 +311,97 @@ body.eui-enabled .eui-drawer .directory-footer button:hover {
   background: var(--eui-card-hover);
 }
 
-/* --- Chat messages: kill the inline user-colour border, flatten cards ---- */
+/* --- Chat messages: shared base (all themes) ----------------------------- */
 body.eui-enabled .eui-drawer .chat-log .chat-message {
-  /* override dnd5e's inline `style="border-color:#xxxxxx"` */
-  border: 1px solid var(--eui-border) !important;
-  border-left: 3px solid var(--eui-accent) !important; /* subtle accent only */
-  border-radius: 8px;
-  background: var(--eui-card-bg);
-  box-shadow: none !important;
   margin: 0 0 6px;
   padding: 8px 10px;
+  /* kill dnd5e's parchment texture + inline user-colour border in every theme */
+  background-image: none !important;
+  box-shadow: none !important;
 }
 body.eui-enabled .eui-drawer .chat-message .message-sender .title {
   color: var(--eui-text);
   font-weight: 600;
 }
+/* FORCE the timestamp + delete/⋮ controls to be visible (dnd5e keeps them
+   near-transparent until hover, which vanished on the textured card). */
 body.eui-enabled .eui-drawer .chat-message .message-metadata,
-body.eui-enabled .eui-drawer .chat-message .message-timestamp {
-  color: var(--eui-text-dim);
+body.eui-enabled .eui-drawer .chat-message .message-timestamp,
+body.eui-enabled .eui-drawer .chat-message .message-delete,
+body.eui-enabled .eui-drawer .chat-message .chat-control {
+  color: var(--eui-text-dim) !important;
+  opacity: 1 !important;
   font-size: 0.8em;
 }
+body.eui-enabled .eui-drawer .chat-message .message-delete:hover,
+body.eui-enabled .eui-drawer .chat-message .chat-control:hover {
+  color: var(--eui-text) !important;
+}
+
+/* Theme: FLAT — solid surface, thin accent (default). */
+body.eui-enabled.eui-chat-flat .eui-drawer .chat-log .chat-message {
+  background: var(--eui-card-solid) !important;
+  border: 1px solid var(--eui-border) !important;
+  border-left: 3px solid var(--eui-accent) !important;
+  border-radius: 8px;
+}
+
+/* Theme: PARCHMENT — keep dnd5e's texture, but restore it and fix contrast. */
+body.eui-enabled.eui-chat-parchment .eui-drawer .chat-log .chat-message {
+  background-image: revert !important; /* let dnd5e paint its parchment */
+  border-radius: 8px;
+}
+body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .message-sender .title {
+  color: #1c1410; /* dark text reads on parchment */
+}
+body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .message-metadata,
+body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .message-timestamp,
+body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .message-delete,
+body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .chat-control {
+  color: #5a4636 !important; /* legible warm grey on parchment */
+}
+
+/* Theme: MINIMAL — no card, compact rows divided by a hairline. */
+body.eui-enabled.eui-chat-minimal .eui-drawer .chat-log .chat-message {
+  background: none !important;
+  border: none !important;
+  border-bottom: 1px solid var(--eui-divider) !important;
+  border-radius: 0;
+  padding: 6px 4px;
+}
+body.eui-enabled.eui-chat-minimal .eui-drawer .chat-message .avatar img {
+  width: 24px;
+  height: 24px;
+}
+
+/* Theme: GLASS — frosted translucent panel. */
+body.eui-enabled.eui-chat-glass .eui-drawer .chat-log .chat-message {
+  background: var(--eui-card-bg) !important;
+  border: 1px solid var(--eui-border) !important;
+  border-radius: 10px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
 /* Round markers (combat "Round End") read as quiet dividers, not cards. */
 body.eui-enabled .eui-drawer .chat-message.round-marker {
   border: none !important;
-  border-left: none !important;
-  background: none;
+  background: none !important;
   text-align: center;
-  opacity: 0.7;
+  opacity: 0.65;
+}
+
+/* Reset stray decorative borders/pseudo-elements on the chat containers —
+   this is the lingering red/maroon bar on the drawer's left edge. */
+body.eui-enabled .eui-drawer .chat-scroll,
+body.eui-enabled .eui-drawer .chat-log {
+  border: none !important;
+}
+body.eui-enabled .eui-drawer .chat-scroll::before,
+body.eui-enabled .eui-drawer .chat-scroll::after,
+body.eui-enabled .eui-drawer .chat-log::before,
+body.eui-enabled .eui-drawer .chat-log::after {
+  display: none !important;
 }
 
 /* --- Directory lists (scenes / actors / items / journal / etc.) ---------- */

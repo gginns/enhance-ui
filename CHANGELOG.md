@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.1.3] — 2026-06-14
+
+### Added
+
+- **Settings panel** (Game Settings → Configure Settings → Enhance UI), all
+  client-scoped + live-applied: chat box theme, drawer width, rail width, accent
+  colour, and a "force dark" toggle (replaces the old `FORCE_DARK` constant).
+- **Four chat box themes:** Flat (solid surface), Parchment (keeps dnd5e's
+  texture but with restored contrast), Minimal (no cards, compact rows), Glass
+  (frosted translucent).
+
+### Fixed
+
+- **Parchment texture bled through the cards** — the card fill was translucent
+  so dnd5e's `background-image` showed underneath. Flat theme now uses a solid
+  fill with `background-image: none !important`.
+- **Timestamp + delete/⋮ controls were invisible** — dnd5e keeps them near-
+  transparent until hover. They're now forced to full opacity with legible
+  contrast per theme.
+- **Lingering red/maroon bar on the left edge** — reset decorative borders and
+  `::before`/`::after` pseudo-elements on `.chat-scroll` / `.chat-log`.
+
 ## [0.1.2] — 2026-06-14
 
 ### Fixed
