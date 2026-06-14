@@ -1,0 +1,174 @@
+/* =========================================================================
+   Enhance UI — Sidebar Drawer
+   -------------------------------------------------------------------------
+   Pins the tab rail to the right edge (stable spine) and turns each tab
+   panel into a floating overlay drawer that slides out to its LEFT.
+
+   Architecture:
+     #sidebar           -> clamped to rail width so it never reserves space.
+     .eui-rail          -> position:fixed, right:0, full height, top z-index.
+     .eui-drawer        -> position:fixed, right:<rail>, slides in/out.
+                           position:fixed removes it from flow => canvas
+                           never reflows.
+
+   State (toggled by scripts/enhance-ui.js):
+     #sidebar.eui-open  -> a drawer is showing.
+     <body>.eui-enabled -> module active.
+   ========================================================================= */
+
+:root {
+  --eui-rail-w: 54px;     /* width of the fixed icon rail        */
+  --eui-drawer-w: 360px;  /* width of the slide-out drawer       */
+  --eui-anim: 200ms;      /* open/close transition duration      */
+  --eui-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  --eui-rail-bg: color-mix(in srgb, var(--color-cool-5, #1b1d29) 92%, black);
+  --eui-drawer-bg: color-mix(in srgb, var(--color-cool-5, #1b1d29) 88%, black);
+  --eui-border: color-mix(in srgb, var(--color-warm-2, #c9a14a) 35%, transparent);
+
+  --eui-z-drawer: 60;
+  --eui-z-rail: 70;       /* rail must sit ON TOP of the drawer  */
+}
+
+/* -------------------------------------------------------------------------
+   Sidebar container: clamp to the rail width and let children overflow.
+   Strip its chrome so only the rail/drawer styling shows.
+   ------------------------------------------------------------------------- */
+body.eui-enabled #sidebar {
+  width: var(--eui-rail-w) !important;
+  min-width: var(--eui-rail-w) !important;
+  max-width: var(--eui-rail-w) !important;
+  height: 100vh !important;
+  top: 0 !important;
+  right: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  transition: none !important; /* kill Foundry's collapse width animation */
+}
+
+/* -------------------------------------------------------------------------
+   The fixed icon rail — the stable spine.
+   ------------------------------------------------------------------------- */
+body.eui-enabled .eui-rail {
+  position: fixed !important;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: var(--eui-rail-w);
+  height: 100vh;
+  z-index: var(--eui-z-rail);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 0;
+
+  background: var(--eui-rail-bg);
+  border-left: 1px solid var(--eui-border);
+  box-shadow: -2px 0 12px rgba(0, 0, 0, 0.45);
+}
+
+/* Rail buttons read like an activity bar: square, centered, calm. */
+body.eui-enabled .eui-rail [data-tab] {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  margin: 0;
+  color: var(--color-text-light-highlight, #e4e4e4);
+  opacity: 0.72;
+  transition: opacity 120ms ease, background-color 120ms ease;
+}
+
+body.eui-enabled .eui-rail [data-tab]:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Highlight the active tab only while its drawer is actually open. */
+body.eui-enabled #sidebar:not(.eui-open) .eui-rail [data-tab].active {
+  opacity: 0.72;
+  background: none;
+}
+body.eui-enabled #sidebar.eui-open .eui-rail [data-tab].active {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 3px 0 0 var(--color-warm-2, #c9a14a);
+}
+
+/* The native collapse toggle is redundant now — tabs toggle the drawer. */
+body.eui-enabled .eui-rail [data-action="toggleSidebar"],
+body.eui-enabled .eui-rail [data-action="collapseSidebar"],
+body.eui-enabled .eui-rail .collapse {
+  display: none !important;
+}
+
+/* -------------------------------------------------------------------------
+   Drawers — floating overlay panels to the LEFT of the rail.
+   Hidden by default (slid off to the right, behind the rail & viewport edge).
+   ------------------------------------------------------------------------- */
+body.eui-enabled .eui-drawer {
+  position: fixed !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: auto !important;
+  right: var(--eui-rail-w) !important;
+  width: var(--eui-drawer-w) !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  margin: 0 !important;
+  z-index: var(--eui-z-drawer);
+
+  display: flex;
+  flex-direction: column;
+
+  background: var(--eui-drawer-bg);
+  border-left: 1px solid var(--eui-border);
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.5);
+
+  transform: translateX(calc(var(--eui-drawer-w) + var(--eui-rail-w)));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    transform var(--eui-anim) var(--eui-ease),
+    opacity var(--eui-anim) var(--eui-ease),
+    visibility 0s linear var(--eui-anim);
+}
+
+/* The active tab's drawer, while open, slides into view. */
+body.eui-enabled #sidebar.eui-open .eui-drawer.active {
+  transform: translateX(0);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    transform var(--eui-anim) var(--eui-ease),
+    opacity var(--eui-anim) var(--eui-ease),
+    visibility 0s;
+}
+
+/* Let the chat (and other scrollable) panels fill drawer height correctly. */
+body.eui-enabled .eui-drawer > * {
+  min-height: 0;
+}
+
+/* -------------------------------------------------------------------------
+   Respect reduced-motion preferences.
+   ------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  body.eui-enabled .eui-drawer {
+    transition: opacity 1ms linear, visibility 0s linear 1ms;
+  }
+  body.eui-enabled #sidebar.eui-open .eui-drawer.active {
+    transition: opacity 1ms linear, visibility 0s;
+  }
+}

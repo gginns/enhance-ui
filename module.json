@@ -1,0 +1,23 @@
+{
+  "id": "enhance-ui",
+  "title": "Enhance UI — Sidebar Drawer",
+  "description": "Canvas-first sidebar overhaul. Pins the tab rail to the right edge as a stable activity-bar spine; panels (incl. chat) slide out leftward as a floating overlay drawer that never reflows the canvas. CSS + light JS only — no ApplicationV2 rewrite.",
+  "version": "0.1.0",
+  "authors": [
+    { "name": "gginns22" }
+  ],
+  "compatibility": {
+    "minimum": "13",
+    "verified": "14",
+    "maximum": "14"
+  },
+  "esmodules": [
+    "scripts/enhance-ui.js"
+  ],
+  "styles": [
+    "styles/enhance-ui.css"
+  ],
+  "url": "https://github.com/gginns/enhance-ui",
+  "manifest": "https://raw.githubusercontent.com/gginns/enhance-ui/main/module.json",
+  "download": "https://github.com/gginns/enhance-ui/releases/download/v0.1.0/enhance-ui.zip"
+}
