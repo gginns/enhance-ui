@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.5] — 2026-06-14
+
+### Fixed
+
+- **Message body text was dark-on-dark** in the Flat/Glass/Minimal themes —
+  dnd5e colours `.message-content` with a dark ink meant for its parchment card.
+  Now recoloured to the theme text on dark surfaces (Parchment keeps dark ink).
+- **Timestamps / metadata too dim** — brightened `--eui-text-dim` to an explicit
+  value (≈62% white on dark, 55% black on light) instead of Foundry's very faint
+  subtle token, and gave Parchment its own legible warm-grey metadata ink.
+
 ## [0.1.4] — 2026-06-14
 
 ### Fixed

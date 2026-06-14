@@ -54,9 +54,9 @@ body.eui-enabled {
   --eui-border: rgba(255, 255, 255, 0.08);
   --eui-divider: rgba(255, 255, 255, 0.06);
 
-  /* text + accent (auto-adapt via Foundry tokens) */
+  /* text + accent */
   --eui-text: var(--color-text-primary, #e4e4e4);
-  --eui-text-dim: var(--color-text-subtle, #9aa0ad);
+  --eui-text-dim: rgba(255, 255, 255, 0.62); /* brighter than Foundry's subtle token */
   --eui-accent: var(--color-warm-2, #c9a14a);
   --eui-shadow: rgba(0, 0, 0, 0.5);
 }
@@ -69,6 +69,7 @@ body.eui-enabled[data-theme="light"]:not(.eui-force-dark) {
   --eui-card-bg: rgba(0, 0, 0, 0.035);
   --eui-card-solid: #ffffff;
   --eui-card-hover: rgba(0, 0, 0, 0.06);
+  --eui-text-dim: rgba(0, 0, 0, 0.55);
   --eui-border: rgba(0, 0, 0, 0.12);
   --eui-divider: rgba(0, 0, 0, 0.08);
   --eui-shadow: rgba(0, 0, 0, 0.28);
@@ -331,6 +332,13 @@ body.eui-enabled .eui-drawer .chat-message .message-sender .title {
   color: var(--eui-text);
   font-weight: 600;
 }
+/* Body text: dnd5e colours .message-content with a dark "ink" meant for its
+   parchment card, which disappears on our dark surfaces. Recolour it to the
+   theme text (Parchment overrides this back to dark ink below). */
+body.eui-enabled .eui-drawer .chat-message .message-content,
+body.eui-enabled .eui-drawer .chat-message .message-content p {
+  color: var(--eui-text) !important;
+}
 /* FORCE the timestamp + delete/⋮ controls to be visible (dnd5e keeps them
    near-transparent until hover, which vanished on the textured card). */
 body.eui-enabled .eui-drawer .chat-message .message-metadata,
@@ -363,8 +371,15 @@ body.eui-enabled.eui-chat-parchment .eui-drawer .chat-log .chat-message {
   color: #2a2016;
 }
 body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .message-content,
+body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .message-content p,
 body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .message-sender .title {
-  color: #2a2016; /* dark ink reads on warm paper */
+  color: #2a2016 !important; /* dark ink reads on warm paper */
+}
+body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .message-metadata,
+body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .message-timestamp,
+body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .message-delete,
+body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .chat-control {
+  color: #5a4636 !important; /* warm grey ink for metadata on paper */
 }
 body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .message-metadata,
 body.eui-enabled.eui-chat-parchment .eui-drawer .chat-message .message-timestamp,
