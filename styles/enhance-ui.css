@@ -454,6 +454,25 @@ body.eui-enabled .eui-drawer .chat-log::after {
   display: none !important;
 }
 
+/* Foundry v13 parks the chat scrollbar on the left via `direction: rtl` on
+   .chat-scroll, which right-aligns the log and leaves a ~44px dead band on the
+   left. Force LTR so the thin scrollbar sits on the right edge (against the
+   rail) and messages reclaim the full width. */
+body.eui-enabled .eui-drawer .chat-scroll {
+  direction: ltr !important;
+  scrollbar-gutter: auto !important;
+}
+body.eui-enabled .eui-drawer .chat-log,
+body.eui-enabled .eui-drawer .chat-log .chat-message {
+  direction: ltr !important;
+  width: auto !important;
+  max-width: none !important;
+}
+body.eui-enabled .eui-drawer .chat-log {
+  padding-inline: 0 !important;
+  margin-inline: 0 !important;
+}
+
 /* Soft fade at the top (and a touch at the bottom) of the chat scroll, so
    messages dissolve into the edge as they scroll off instead of hard-clipping
    against the top of the screen. --eui-fade controls the top fade height. */

@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.7] — 2026-06-14
+
+### Fixed
+
+- **Wasted ~44px left gutter in the chat.** Geometry probe (drawer open) showed
+  `.chat-scroll` is `direction: rtl` (Foundry v13's way to park the scrollbar on
+  the left), which right-aligned the log and left a dead band on the left. Forced
+  the chat scroll/log/messages back to `direction: ltr` so the thin scrollbar
+  sits on the right edge and messages use the full drawer width.
+
 ## [0.1.6] — 2026-06-14
 
 ### Fixed
